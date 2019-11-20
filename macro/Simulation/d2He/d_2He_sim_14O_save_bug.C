@@ -1,14 +1,19 @@
-void d_2He_sim_56Ni07(Int_t nEvents = 100, TString mcEngine = "TGeant4", TString geovar = "_03atm" )
+#include "TRandom3.h"
+
+void d_2He_sim_14O(Int_t nEvents = 100, TString mcEngine = "TGeant4", TString geovar = "_07atm" )
 {
 
   TString dir = getenv("VMCWORKDIR");
 
  const TString pathtodata = "/user/giraud/ATTPC/simu/ATTPCROOTv2/macro/Simulation/d2He/";
   // Output file name
-  TString outFile = pathtodata + "attpcsim_d2He_56Nigs" + geovar + ".root";
+  TString outFile = pathtodata + "attpcsim_d2He_14O" + geovar + ".root";
+//TString outFile = pathtodata + "attpcsim_test.root";
+
 
   // Parameter file name
-  TString parFile= pathtodata + "attpcpar_d2He_56Nigs" + geovar + ".root";
+ TString parFile= pathtodata + "attpcpar_d2He_14O" + geovar + ".root";
+  //TString parFile= pathtodata + "attpcpar_test.root";
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -45,7 +50,6 @@ void d_2He_sim_56Ni07(Int_t nEvents = 100, TString mcEngine = "TGeant4", TString
   run->AddModule(pipe);*/
   TString geoname = "ATTPC_d2He" + geovar + ".root";
 
-
   FairDetector* ATTPC = new AtTpc("ATTPC", kTRUE);
   ATTPC->SetGeometryFileName(geoname);
   //ATTPC->SetModifyGeometry(kTRUE);
@@ -69,35 +73,34 @@ void d_2He_sim_56Ni07(Int_t nEvents = 100, TString mcEngine = "TGeant4", TString
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
 
-
+		  Double_t unitmass = 931.494; // MeV per amu
 
                   // Beam Information
-                  Int_t z = 28;  // Atomic number
-	          Int_t a = 56; // Mass number
+                  Int_t z = 8;  // Atomic number
+	          Int_t a = 14; // Mass number
 	          Int_t q = 0;   // Charge State
 	          Int_t m = 1;   // Multiplicity  NOTE: Due the limitation of the TGenPhaseSpace accepting only pointers/arrays the maximum multiplicity has been set to 10 particles.
-//	          Double_t px = 0.000/a;  
-//	          Double_t py = 0.000/a;  // Y-Momentum / per nucleon!!!!!!
-//	          Double_t pz = 24798.97727/(a*1000.0);  // Z-Momentum / per nucleon!!!!!!
-
-	          Double_t px = 100.97727/(a*1000.0);  
-	          Double_t py = 80.97727/(a*1000.0);  // Y-Momentum / per nucleon!!!!!!
-	          Double_t pz = 24798.97727/(a*1000.0);  // Z-Momentum / per nucleon!!!!!!
-
+		  Double_t kBeam = 100.0;
   	          Double_t BExcEner = 0.0;
-                  Double_t Bmass = 55.942128549*931.494/1000.0; //Mass in GeV
-                  Double_t NomEnergy = 100; //Nominal Energy of the beam: Only used for cross section calculation (Tracking energy is determined with momentum). TODO: Change this to the energy after the IC
-                
+                  Double_t Bmass = 14.008596359*unitmass/1000.0; //Mass in GeV
+                  Double_t NomEnergy = 100; //was 1//Nominal Energy of the beam: Only used for cross section calculation (Tracking energy is determined with momentum). TODO: Change this to the energy after the IC
+		  
+  TRandom3 *gRandom_p = new TRandom3 ();
+	          Double_t pz = sqrt( pow(kBeam * a / 1000.0 + Bmass,2) - pow(Bmass,2) )/a;  // Z-Momentum / per nucleon!!!!!!
+	          Double_t px = 0;
+	          Double_t py = 0;  // Y-Momentum / per nucleon!!!!!!
+		  
 
 
 	          ATTPCIonGenerator* ionGen = new ATTPCIonGenerator("Ion",z,a,q,m,px,py,pz,BExcEner,Bmass,NomEnergy);
-	          ionGen->SetSpotRadius(1,-100,1);//(0,-100,0);
-	          // add the ion generator
+	          //ionGen->SetSpotRadius(0,-100,0);
 
+	          // add the ion generator
 	          primGen->AddGenerator(ionGen);
 
-  		  //primGen->SetBeam(1,1,0,0); //These parameters change the position of the vertex of every track added to the Primary Generator
-		  // primGen->SetTarget(30,0);
+		  //These parameters change the position of the vertex of every track added to the Primary Generator
+  		  //primGen->SetBeam(1,1,0,0); 
+		  //primGen->SetTarget(30,0.1);
 
 
 
@@ -122,17 +125,17 @@ void d_2He_sim_56Ni07(Int_t nEvents = 100, TString mcEngine = "TGeant4", TString
                   ResEner = 0.0; // Useless
 
                   // ---- Beam ----
-                  Zp.push_back(z); // 40Ar TRACKID=0
+                  Zp.push_back(z);
 		  Ap.push_back(a); //
 		  Qp.push_back(0);
 		  Pxp.push_back((a*1000.0)*px);
 		  Pyp.push_back((a*1000.0)*py);
 		  Pzp.push_back((a*1000.0)*pz);
-		  Mass.push_back(Bmass*1000.0/931.494);
+		  Mass.push_back(Bmass*1000.0/unitmass);
 		  ExE.push_back(0);
 
                   // ---- Target ----
-                 Zp.push_back(1); // p
+                 Zp.push_back(1); //
 		 Ap.push_back(2); //
 		 Qp.push_back(0); //
 		 Pxp.push_back(0.0);
@@ -142,18 +145,18 @@ void d_2He_sim_56Ni07(Int_t nEvents = 100, TString mcEngine = "TGeant4", TString
 		 ExE.push_back(0.0);//In MeV
 
                   //--- Scattered -----
-                Zp.push_back(27); // 40Ar TRACKID=1
-          	Ap.push_back(56); //
+                Zp.push_back(7); //
+          	Ap.push_back(14); //
           	Qp.push_back(0);
           	Pxp.push_back(0.0);
           	Pyp.push_back(0.0);
           	Pzp.push_back(0.0);
-          	Mass.push_back(55.939838798);
+          	Mass.push_back(14.00307400443);
           	ExE.push_back(0.0);
 
 
                   // ---- Recoil -----
-		Zp.push_back(2); // 40Ar TRACKID=1
+		Zp.push_back(2); //
           	Ap.push_back(2); //
           	Qp.push_back(0);
           	Pxp.push_back(0.0);
@@ -163,7 +166,7 @@ void d_2He_sim_56Ni07(Int_t nEvents = 100, TString mcEngine = "TGeant4", TString
           	ExE.push_back(0.0);
 
 		  // ---- proton 1 -----
-		Zp.push_back(1); // 40Ar TRACKID=1
+		Zp.push_back(1); //
           	Ap.push_back(1); //
           	Qp.push_back(0);
           	Pxp.push_back(0.0);
@@ -173,7 +176,7 @@ void d_2He_sim_56Ni07(Int_t nEvents = 100, TString mcEngine = "TGeant4", TString
           	ExE.push_back(0.0);
 
 		  // ---- proton 2 -----
-		Zp.push_back(1); // 40Ar TRACKID=1
+		Zp.push_back(1);
           	Ap.push_back(1); //
           	Qp.push_back(0);
           	Pxp.push_back(0.0);
@@ -189,13 +192,13 @@ void d_2He_sim_56Ni07(Int_t nEvents = 100, TString mcEngine = "TGeant4", TString
 		Double_t col1, col2, col3;
 
 	//lee la seccion eficaz desde una tabla
-	string filename= "all2_56Ni.dat";
+	string filename= "14O_all.dat";
 	ifstream  inputfile;
 	inputfile. open(filename.c_str());
       	if(inputfile.fail() ){
                        cerr << "error abriendo "<< filename << endl;
  			exit(1);
-                      }  
+                      }
 
 	for(Int_t i=0;i<N_cross;i++){
 		inputfile >> col1 >> col2 >> col3 ;
@@ -204,16 +207,16 @@ void d_2He_sim_56Ni07(Int_t nEvents = 100, TString mcEngine = "TGeant4", TString
 		Arr3.at(i) = col3;
 		}
 	inputfile.close();
- 
 
-        
+
+
 	ATTPC_d2He* d2He = new ATTPC_d2He("d_2He",&Zp,&Ap,&Qp,mult,&Pxp,&Pyp,&Pzp,&Mass,&ExE, &Arr1, &Arr2, &Arr3, N_cross);
         primGen->AddGenerator(d2He);
 
-	
+
 
 	run->SetGenerator(primGen);
-	
+
 // ------------------------------------------------------------------------
 
   //---Store the visualiztion info of the tracks, this make the output file very large!!

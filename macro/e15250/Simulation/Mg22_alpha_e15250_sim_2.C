@@ -1,4 +1,4 @@
-void Mg22_alpha_e15250_sim_2(Int_t nEvents = 10000, TString mcEngine = "TGeant4") {
+void Mg22_alpha_e15250_sim_2(Int_t nEvents = 100, TString mcEngine = "TGeant4") {
   
   TString dir = getenv("VMCWORKDIR");
   
@@ -43,7 +43,7 @@ void Mg22_alpha_e15250_sim_2(Int_t nEvents = 10000, TString mcEngine = "TGeant4"
     run->AddModule(pipe);*/
   
   FairDetector* ATTPC = new AtTpc("ATTPC", kTRUE);
-  ATTPC->SetGeometryFileName("ATTPC_e15250_v1.root");
+  ATTPC->SetGeometryFileName("/user/giraud/ATTPC/simu/ATTPCROOTv2/geometry/ATTPC_e15250_v1.root");
   //ATTPC->SetModifyGeometry(kTRUE);
   run->AddModule(ATTPC);
   

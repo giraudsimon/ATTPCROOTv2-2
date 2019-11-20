@@ -37,7 +37,8 @@ ATTPCIonGenerator::ATTPCIonGenerator()
     fPx(0.), fPy(0.), fPz(0.),
     fR(0.), fz(0.), fOffset(0.),
     fVx(0.), fVy(0.), fVz(0.),
-    fIon(NULL),  fQ(0), fBeamSpotIsSet(kFALSE)
+    fIon(NULL),  fQ(0), fBeamSpotIsSet(kFALSE),
+    fA(0)
 {
 //  cout << "-W- ATTPCIonGenerator: "
 //      << " Please do not use the default constructor! " << endl;
@@ -52,7 +53,8 @@ ATTPCIonGenerator::ATTPCIonGenerator(const Char_t* ionName, Int_t mult,
     fPx(0.), fPy(0.), fPz(0.),
     fR(0.), fz(0.), fOffset(0.),
     fVx(0.), fVy(0.), fVz(0.),
-    fIon(NULL),  fQ(0), fBeamSpotIsSet(kFALSE)
+    fIon(NULL),  fQ(0), fBeamSpotIsSet(kFALSE),
+    fA(0)
 {
 
   FairRunSim *fRun=FairRunSim::Instance();
@@ -70,6 +72,7 @@ ATTPCIonGenerator::ATTPCIonGenerator(const Char_t* ionName, Int_t mult,
      //fVy   = vy; 
      //fVz   = vz;
        //}
+      
 
   }else{
      part= (FairParticle *)UserParticles->FindObject(ionName);
@@ -102,13 +105,15 @@ ATTPCIonGenerator::ATTPCIonGenerator(const char* name,Int_t z, Int_t a, Int_t q,
     fPx(0.), fPy(0.), fPz(0.),
     fR(0.), fz(0.), fOffset(0.),
     fVx(0.), fVy(0.), fVz(0.),
-    fIon(NULL),  fQ(0), fBeamSpotIsSet(kFALSE), fNomEner(0.)
+    fIon(NULL),  fQ(0), fBeamSpotIsSet(kFALSE), fNomEner(0.),
+    fA(0)
  {
   fgNIon++;
   fMult = mult;
   fPx   = Double_t(a) * px;
   fPy   = Double_t(a) * py;
   fPz   = Double_t(a) * pz;
+  fA  = a;
   fNomEner = ener;
   //fVx   = vx; 
   //fVy   = vy; 
@@ -116,7 +121,7 @@ ATTPCIonGenerator::ATTPCIonGenerator(const char* name,Int_t z, Int_t a, Int_t q,
   char buffer[20];
   sprintf(buffer, "FairIon%d", fgNIon);
   fIon= new FairIon(buffer, z, a, q,Ex,m); 
-  cout <<" Beam Ion mass : "<<fIon->GetMass()<<endl;
+//  cout <<" Beam Ion mass : "<<fIon->GetMass()<<endl;
   gATVP->SetBeamMass(fIon->GetMass());
   gATVP->SetBeamNomE(ener);
   FairRunSim* run = FairRunSim::Instance();
@@ -135,7 +140,8 @@ ATTPCIonGenerator::ATTPCIonGenerator(const ATTPCIonGenerator& right)
     fPx(right.fPx), fPy(right.fPy), fPz(right.fPz),
     fR(right.fR), fz(right.fz), fOffset(right.fOffset),
     fVx(right.fVx), fVy(right.fVy), fVz(right.fVz),
-    fIon(right.fIon), fQ(right.fQ), fBeamSpotIsSet(right.fBeamSpotIsSet)
+    fIon(right.fIon), fQ(right.fQ), fBeamSpotIsSet(right.fBeamSpotIsSet),
+    fA(right.fA)
 {
 }
 
@@ -168,7 +174,8 @@ void ATTPCIonGenerator::SetMass(Double_t mass) {
 // -----   Public method ReadEvent   --------------------------------------
 Bool_t ATTPCIonGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
 
-  Double_t Phi, SpotR;
+  Double_t Phi, SpotR, focz, EBeam;
+
 
  // if ( ! fIon ) {
  //   cout << "-W- FairIonGenerator: No ion defined! " << endl;
@@ -186,14 +193,21 @@ Bool_t ATTPCIonGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
   int pdgType = thisPart->PdgCode();
 
   //cout << "fR=" << fR << " fz=" << fz <<endl;
-
+  
+  EBeam = 100.;
+  fR = 5;
+  focz = gRandom->Gaus(10,5); // (mean focal point, sigma)
   Phi= gRandom->Uniform(0,360)*TMath::DegToRad();
   SpotR=gRandom->Uniform(0,fR);
+  
+  fBeamSpotIsSet=kTRUE;
 
   if(fBeamSpotIsSet) {
     fVx   = SpotR*cos(Phi); //gRandom->Uniform(-fx,fx);
     fVy   = fOffset + SpotR*sin(Phi); //gRandom->Uniform(-fy,fy);
     fVz   = fz;
+    
+
   }else
     {
       fVx=0.0;
@@ -201,11 +215,41 @@ Bool_t ATTPCIonGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
       fVz=0.0;
     }
 
+    
+  if(fVx>0 && fVy>0){	
+    	fPx   = -sqrt( pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) )*cos(atan(focz/fVx));
+    	fPy   = -sqrt( pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) )*cos(atan(focz/fVy));
+    	fPz   = sqrt(pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) - fPx*fPx - fPy*fPy);	
+    }
+    else if(fVx>0 && fVy<0){
+    	fPx   = -sqrt( pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) )*cos(atan(focz/fVx));
+    	fPy   = sqrt( pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) )*cos(atan(focz/fVy));
+    	fPz   = sqrt(pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) - fPx*fPx - fPy*fPy);
+    }
+    else if(fVx<0 && fVy<0){
+    	fPx   = sqrt( pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) )*cos(atan(focz/fVx));
+    	fPy   = sqrt( pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) )*cos(atan(focz/fVy));
+    	fPz   = sqrt(pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) - fPx*fPx - fPy*fPy); 
+    }
+    else if(fVx<0 && fVy>0){
+    	fPx   = sqrt( pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) )*cos(atan(focz/fVx));
+    	fPy   = -sqrt( pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) )*cos(atan(focz/fVy));
+    	fPz   = sqrt(pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) - fPx*fPx - fPy*fPy);  
+  } 
+    
+/*
+  cout << "-I- FairIonGenerator: Generating " << fMult <<" with mass "<<thisPart->Mass() << " ions of type "
+       << fIon->GetName() << " (PDG code " << pdgType << ")" << endl;
+  cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz 
+       << ") Gev from vertex (" << fVx << ", " << fVy << ", " << fVz << ") cm" << fOffset << " "<< SpotR << " test mom " <<sqrt( pow(EBeam * fA / 1000.0 + thisPart->Mass(),2) - pow(thisPart->Mass(),2) )/fA<<endl; */
+
+
   cout << "-I- FairIonGenerator: Generating " << fMult <<" with mass "<<thisPart->Mass() << " ions of type "
        << fIon->GetName() << " (PDG code " << pdgType << ")" << endl;
   cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz 
        << ") Gev from vertex (" << fVx << ", " << fVy
        << ", " << fVz << ") cm" << endl;
+
 
   gATVP->IncBeamEvtCnt(); 
 
@@ -213,7 +257,7 @@ Bool_t ATTPCIonGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
   if(gATVP->GetBeamEvtCnt()%2!=0){
 	         Double_t Er = gRandom->Uniform(0.,fNomEner);
   	       gATVP->SetRndELoss(Er);
-           std::cout<<" Random Energy ATTPCIonGenerator : "<<Er<<std::endl;
+//           std::cout<<" Random Energy ATTPCIonGenerator : "<<Er<<std::endl;
 	}
 
   for(Int_t i=0; i<fMult; i++)

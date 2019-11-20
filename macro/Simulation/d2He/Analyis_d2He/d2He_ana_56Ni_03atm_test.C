@@ -58,7 +58,7 @@ double GetEloss(double Eres, double lres, double trackmiss, std::vector<Double_t
 
 
 
-void d2He_ana_56Ni_1atm0(TString geofile = "_03atm", Double_t elhueco=5)
+void d2He_ana_56Ni_03atm_test(TString geofile = "_03atm", Double_t elhueco=5)
 {
 
 
@@ -146,8 +146,11 @@ void d2He_ana_56Ni_1atm0(TString geofile = "_03atm", Double_t elhueco=5)
 	TH2D *eloss_track = new TH2D("eloss_track","eloss_track",500,0,1000,500,0,50);
 	TH1D *Eloss_p = new TH1D("Eloss_p","Eloss_p",500,0,4);
 	TH2D *ereal_eloss = new TH2D("ereal_eloss","ereal_eloss",500,0,100,500,0,3);	
-	TH2D *ereal_thres = new TH2D("ereal_thres","ereal_thres",500,0,100,500,0,30);	
+	TH2D *ereal_thres = new TH2D("ereal_thres","ereal_thres",500,0,100,500,0,30);
 
+	//---------------------- Test (Simon) -------------------------
+	TH1D *evt_npts = new TH1D("evt_npts","evt_npts",500,0,500);	
+	//-------------------------------------------------------------
 
 	TH1D *theta_r_he2 = new TH1D("theta_r_he2","theta 2He",500,0,180);
 	TH1D *kin_r_he2 = new TH1D("kin_r_he2","Energy 2He",500,0,5);
@@ -534,6 +537,8 @@ void d2He_ana_56Ni_1atm0(TString geofile = "_03atm", Double_t elhueco=5)
 		av_dE_p2 = av_dE_p2/np2;
 		ereal_eloss->Fill(realkinE, energyLoss_p1);
 		ereal_thres->Fill(realkinE, av_dE_p1);
+		
+		evt_npts->Fill(iEvent,np1); // test Simon
 
                 //cout<<np1<<" "<<av_dE_p1<<" "<<realkinE<<endl; 
                 //-----------Fitting tracks
@@ -768,6 +773,7 @@ void d2He_ana_56Ni_1atm0(TString geofile = "_03atm", Double_t elhueco=5)
 	Eloss_p->Write();
 	ereal_eloss->Write();
 	ereal_thres->Write();
+	evt_npts->Write();
 
 	outfile->cd("He2_reconstr");
 	theta_r_he2->Write();

@@ -49,6 +49,7 @@ ATClusterizeTask::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   
   fMCPointArray = (TClonesArray*) ioman->GetObject("AtTpcPoint");
+  
   if (fMCPointArray == 0) {
     fLogger -> Error(MESSAGE_ORIGIN, "Cannot find fMCPointArray array!");
     return kERROR;
@@ -74,7 +75,7 @@ ATClusterizeTask::Exec(Option_t* option)
 {
   fLogger->Debug(MESSAGE_ORIGIN,"Exec of ATClusterizeTask");
   Int_t nMCPoints = fMCPointArray->GetEntries();
-  //std::cout<<"ATClusterizeTask: Number of MC Points "<<nMCPoints<<std::endl;
+  std::cout<<"ATClusterizeTask: Number of MC Points "<<nMCPoints<<std::endl;
   if(nMCPoints<10){
     fLogger->Warning(MESSAGE_ORIGIN, "Not enough hits for digitization! (<10)");
     return;

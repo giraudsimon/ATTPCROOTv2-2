@@ -90,7 +90,8 @@ private:
   Double_t fVx, fVy, fVz;   // Vertex coordinates [cm]
   FairIon   *fIon;          // Pointer to the FairIon to be generated
   Int_t    fQ;		    // Electric charge [e]
-  Int_t fNomEner;           
+  Int_t fNomEner;
+  Int_t fA;         
 
   Bool_t fBeamSpotIsSet;    // True if point beamspot is set
     

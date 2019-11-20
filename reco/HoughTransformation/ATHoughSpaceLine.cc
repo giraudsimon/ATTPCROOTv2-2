@@ -134,13 +134,12 @@ void ATHoughSpaceLine::CalcHoughSpace(ATEvent* event) //Main function of the Lin
         (XZ_tracks.size()>YZ_tracks.size() ? fHoughTracks=XZ_tracks : fHoughTracks=YZ_tracks);
 
 
-
-
       if(fHoughTracks.size()>1){ //Defined in CalcGenHoughSpace
         for(Int_t ntrack=0;ntrack<fHoughTracks.size();ntrack++)
           MinimizeTrack(fHoughTracks.at(ntrack));
           FindVertex(fHoughTracks);
       }
+      
 
 
       //  Block for Hough Space in 3D
@@ -300,8 +299,8 @@ void ATHoughSpaceLine::FindVertex(std::vector<ATTrack*> HoughTracks)
 
                                       }
 
-                                      //for(Int_t i=0;i<fTrackCand.size();i++)
-                                          //std::cout<<fTrackCand.at(i).GetTrackID()<<std::endl;
+                                      /*for(Int_t i=0;i<fTrackCand.size();i++)
+                                          std::cout<<fTrackCand.at(i).GetTrackID()<<std::endl;*/
 
 
                         }//p_f size

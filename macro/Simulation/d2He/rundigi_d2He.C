@@ -1,9 +1,12 @@
-void rundigi_sim
-(TString mcFile = "./data/attpcsim.root",
- TString digiParFile = "../../../parameters/ATTPC.30Mgtp.par",
+void rundigi_d2He
+(//TString mcFile = "attpcsim_d2He_14O_07atm.root",
+TString mcFile = "output_digi_4.root",
+ TString digiParFile = "../../../parameters/ATTPC.d2He.par",
  TString mapParFile = "../../../scripts/Lookup20150611.xml",
- TString trigParFile = "../../../parameters/AT.trigger.par")
+ TString parFile = "attpcpar_d2He_14O_07atm.root")
+//TString trigParFile = "../../../parameters/AT.trigger.par")
 {
+
   // -----   Timer   --------------------------------------------------------
  TStopwatch timer;
  timer.Start();
@@ -20,15 +23,15 @@ void rundigi_sim
   // __ Run ____________________________________________
   FairRunAna* fRun = new FairRunAna();
               fRun -> SetInputFile(mcFile);
-              fRun -> SetOutputFile("output_digi_4.root");
+              fRun -> SetOutputFile("output_digi_4_sec.root");
 
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-              FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-              parIo1 -> open(digiParFile.Data(), "in");
+              FairParRootFileIo* parIo1 = new FairParRootFileIo();
+              parIo1 -> open(parFile.Data(), "in");
 	      rtdb -> setFirstInput(parIo1);
               FairParAsciiFileIo* parIo2 = new FairParAsciiFileIo();     
-              parIo2 -> open(trigParFile.Data(), "in");
+              parIo2 -> open(digiParFile.Data(), "in");
               rtdb -> setSecondInput(parIo2);
 
   // __ AT digi tasks___________________________________
@@ -38,6 +41,12 @@ void rundigi_sim
 
       ATPulseTask* pulse = new ATPulseTask();
       pulse -> SetPersistence(kTRUE);
+
+
+//      ATTriggerTask *trigTask = new ATTriggerTask();
+//      trigTask  ->  SetAtMap(mapParFile);
+//      trigTask  ->  SetPersistence(kTRUE);
+
 
       ATPSATask *psaTask = new ATPSATask();
       psaTask -> SetPersistence(kTRUE);
@@ -49,32 +58,34 @@ void rundigi_sim
       psaTask -> SetBaseCorrection(kFALSE); //Directly apply the base line correction to the pulse amplitude to correct for the mesh induction. If false the correction is just saved
       psaTask -> SetTimeCorrection(kFALSE); //Interpolation around the maximum of the signal peak
 
-      /*ATTriggerTask *trigTask = new ATTriggerTask();
-      trigTask  ->  SetAtMap(mapParFile);
-      trigTask  ->  SetPersistence(kTRUE);*/
 
-
- /*     ATHoughTask *HoughTask = new ATHoughTask();
-      HoughTask ->SetPersistence();
-      HoughTask ->SetCircularHough();
+      ATRansacTask *RandTask = new ATRansacTask();
+      RandTask ->SetPersistence(kTRUE);
+      //RandTask ->SetModelType(1);
+      RandTask ->SetFullMode();
+/*
+      ATHoughTask *HoughTask = new ATHoughTask();
+      HoughTask ->SetPersistence(kTRUE);
+      HoughTask ->SetLinearHough();
       HoughTask ->SetHoughThreshold(10.0); // Charge threshold for Hough
       HoughTask ->SetEnableMap(); //Enables an instance of the ATTPC map:  This enables the MC with Q instead of position
       HoughTask ->SetMap(scriptdir.Data());
-  */
+*/  
    	      
-   ATHoughTask *HoughTask = new ATHoughTask();
-   HoughTask ->SetPersistence();           
+ //  ATHoughTask *HoughTask = new ATHoughTask();
+ //  HoughTask ->SetPersistence(kTRUE);           
 
-  fRun -> AddTask(clusterizer);
-  fRun -> AddTask(pulse);
-  fRun -> AddTask(psaTask);
-  //fRun -> AddTask(trigTask);
-  fRun -> AddTask(HoughTask);
+//     fRun -> AddTask(clusterizer);
+//     fRun -> AddTask(pulse);
+//     fRun -> AddTask(psaTask);
+//    fRun -> AddTask(trigTask);
+//    fRun -> AddTask(HoughTask);
+     fRun -> AddTask(RandTask);
 
   // __ Init and run ___________________________________
 
   fRun -> Init();
-  fRun -> Run(0,2000);
+  fRun -> Run(0,100);
 
   std::cout << std::endl << std::endl;
   std::cout << "Macro finished succesfully."  << std::endl << std::endl;

@@ -90,6 +90,7 @@ ATRansacTask::Exec(Option_t *opt)
       if (fEventHArray -> GetEntriesFast() == 0)
        return;
 
+	
 
       fEvent  = (ATEvent *) fEventHArray -> At(0);
       ATRANSACN::ATRansac *Ransac = (ATRANSACN::ATRansac *) new ((*fRansacArray)[0]) ATRANSACN::ATRansac();

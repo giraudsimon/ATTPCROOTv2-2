@@ -28,9 +28,9 @@
 
 
 #/mcVerbose/all                   0
-#/mcVerbose/runAction             1
-#/mcVerbose/composedPhysicsList   1
-#/mcVerbose/trackingAction        1
+#/mcVerbose/runAction             0
+#/mcVerbose/composedPhysicsList   0
+#/mcVerbose/trackingAction        0
 #/mcVerbose/eventAction           0
 
 #/mcphysics/rangeCutForGamma    0.01 mm   # ERROR
@@ -48,6 +48,6 @@
 
 #/run/particle/applyCuts
 
-#/tracking/verbose 1
+/tracking/verbose -1
 #/control/cout/ignoreThreadsExcept 0
 

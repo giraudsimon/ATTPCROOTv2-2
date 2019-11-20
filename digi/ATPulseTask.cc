@@ -120,7 +120,7 @@ void ATPulseTask::Exec(Option_t* option) {
     eleAccumulated[padS]->Reset();
   
   Int_t nMCPoints = fDriftedElectronArray->GetEntries();
-  std::cout<<" ATPulseTask: Number of Points "<<nMCPoints<<std::endl;
+  //std::cout<<" ATPulseTask: Number of Points "<<nMCPoints<<std::endl;
   if(nMCPoints<10){
     LOG(INFO) << "Not enough hits for digitization! (<10)" << FairLogger::endl;
     return;

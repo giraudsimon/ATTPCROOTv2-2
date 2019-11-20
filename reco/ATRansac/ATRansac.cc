@@ -79,7 +79,7 @@ void ATRANSACN::ATRansac::CalcRANSAC(ATEvent *event)
 {
 
     std::vector<ATTrack*> tracks = RansacPCL(event);
-    //std::cout<<" Number of tracks : "<<tracks.size()<<std::endl;
+    std::cout<<" Number of tracks : "<<tracks.size()<<std::endl;
 
     if(tracks.size()>1){ //Defined in CalcGenHoughSpace
       for(Int_t ntrack=0;ntrack<tracks.size();ntrack++){
@@ -93,7 +93,12 @@ void ATRANSACN::ATRansac::CalcRANSAC(ATEvent *event)
 
           }
       }// Tracks loop
+      
+      std::cout<<tracks.size()<<std::endl;
+      
       FindVertex(tracks);
+      
+       std::cout<<"DBUGGGGGG 222222222222222"<<std::endl;
     }// Minimum tracks
 
     // Drawing tracks against the Event
@@ -160,7 +165,11 @@ void ATRANSACN::ATRansac::CalcRANSAC(ATEvent *event)
 void ATRANSACN::ATRansac::CalcRANSACFull(ATEvent *event)
 {
 
+std::cout<<"!!!!!!!!!!!!!!!!! ------ DEBUGGGGGG 0"<<std::endl;
+
         std::vector<ATTrack*> tracks = RansacPCL(event);
+	
+std::cout<<"!!!!!!!!!!!!!!!!! ------ DEBUGGGGGG 1 : "<< tracks.size() <<std::endl;
 
         XYZVector Z_1(0.0,0.0,1.0); // Beam direction
 
@@ -168,21 +177,27 @@ void ATRANSACN::ATRansac::CalcRANSACFull(ATEvent *event)
           for(Int_t ntrack=0;ntrack<tracks.size();ntrack++){
             std::vector<ATHit>* trackHits = tracks.at(ntrack)->GetHitArray();
             Int_t nHits = trackHits->size();
+	    
+std::cout<<"!!!!!!!!!!!!!!!!! ------ DEBUGGGGGG 2"<<std::endl;
 
               if(nHits>fMinHitsLine) //We only accept lines with more than 5 hits and a maximum number of lines of 5
               {
+	      std::cout<<"!!!!!!!!!!!!!!!!! ------ DEBUGGGGGG 3"<<std::endl;
               MinimizeTrack(tracks.at(ntrack));
               tracks.at(ntrack)->SetTrackID(ntrack);
               std::vector<Double_t> p = tracks.at(ntrack)->GetFitPar();
+	      std::cout<<"!!!!!!!!!!!!!!!!! ------ DEBUGGGGGG 4"<<std::endl;
                   if(p.size()==4){
                     XYZVector L_1(p[1], p[3], 1. );
                     Double_t angZDeti = GetAngleTracks(L_1,Z_1);
                     tracks.at(ntrack)->SetAngleZAxis(angZDeti);
                     fTrackCand.push_back(*tracks.at(ntrack));
+		    std::cout<<"!!!!!!!!!!!!!!!!! ------ DEBUGGGGGG 5"<<std::endl;
                   }
               }
           }// Tracks loop
               if(fTrackCand.size()>5) fTrackCand.resize(5);
+	      std::cout<<"!!!!!!!!!!!!!!!!! ------ DEBUGGGGGG 6"<<std::endl;
         }// Minimum tracks
 
 
@@ -321,6 +336,7 @@ while (cloud->points.size () > fRANSACPointThreshold * nr_points)
 std::vector<ATTrack*> ATRANSACN::ATRansac::RansacPCL(ATEvent *event)
 {
 
+    std::cout<<" !!!!!!! DEBUGGGGGG ------- PCL 0 : "<<event->GetHitArray()<<std::endl;
     return ATRANSACN::ATRansac::Ransac(event->GetHitArray());
 
 }

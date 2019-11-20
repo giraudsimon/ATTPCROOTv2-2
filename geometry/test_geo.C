@@ -23,13 +23,13 @@
 #include <iostream>
 
 // Name of geometry version and output file
-const TString geoVersion = "ATTPC_e15250_v1";
+const TString geoVersion = "ATTPC_v1.1";
 const TString FileName = geoVersion + ".root";
 const TString FileName1 = geoVersion + "_geomanager.root";
 
 // Names of the different used materials which are used to build the modules
 // The materials are defined in the global media.geo file
-const TString MediumGas     = "He_1bar";
+const TString MediumGas     = "heco2";
 const TString CylinderVolumeMedium         = "steel";
 const TString MediumVacuum = "vacuum4";
 
@@ -39,7 +39,7 @@ const Float_t Z_Distance = 10;
 
 // Silicon box for both module types
 const Float_t tpc_diameter = 50.;
-const Float_t drift_length = 100.;
+const Float_t drift_length = 120.;
 
 
 // some global variables
@@ -52,7 +52,7 @@ TGeoVolume* create_detector();
 void position_detector();
 void add_alignable_volumes();
 
-void ATTPC_e15250_v1() {
+void test_geo() {
   // Load the necessary FairRoot libraries
  // gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
  // basiclibs();
@@ -107,7 +107,7 @@ void ATTPC_e15250_v1() {
 void create_materials_from_media_file()
 {
   // Use the FairRoot geometry interface to load the media which are already defined
-  FairGeoLoader* geoLoad = new FairGeoLoader("TGeo", "FairGeoLoader");
+  //FairGeoLoader* geoLoad = new FairGeoLoader("TGeo", "FairGeoLoader");
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   TString geoPath = gSystem->Getenv("VMCWORKDIR");
   TString geoFile = geoPath + "/geometry/media.geo";
@@ -122,16 +122,13 @@ void create_materials_from_media_file()
   FairGeoMedium* steel          = geoMedia->getMedium("steel");
   FairGeoMedium* heco2          = geoMedia->getMedium("heco2");
   FairGeoMedium* vacuum4          = geoMedia->getMedium("vacuum4");
-  FairGeoMedium* He_1bar          = geoMedia->getMedium("He_1bar");
 
   // include check if all media are found
 
   geoBuild->createMedium(isobutan);
   geoBuild->createMedium(steel);
   geoBuild->createMedium(heco2);
-  geoBuild->createMedium(vacuum4);   
-  geoBuild->createMedium(He_1bar);
-
+  geoBuild->createMedium(vacuum4);
 }
 
 TGeoVolume* create_detector()

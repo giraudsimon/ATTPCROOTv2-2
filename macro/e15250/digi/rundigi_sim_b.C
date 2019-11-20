@@ -1,4 +1,4 @@
-void rundigi_sim
+void rundigi_sim_b
 (TString mcFile = "../data/attpcsim_e15250_2M.root",
  TString digiParFile = "../../../parameters/ATTPC.e15250_sim.par",
  TString mapParFile = "../../../scripts/Lookup20150611.txt",
@@ -45,15 +45,23 @@ void rundigi_sim
       trigTask  ->  SetPersistence(kTRUE);
 
 
+      ATHoughTask *HoughTask = new ATHoughTask();
+      HoughTask ->SetPersistence();
+      HoughTask ->SetCircularHough();
+      HoughTask ->SetHoughThreshold(10.0); // Charge threshold for Hough
+      HoughTask ->SetEnableMap(); //Enables an instance of the ATTPC map:  This enables the MC with Q instead of position
+      HoughTask ->SetMap(mapParFile.Data());
+
   fRun -> AddTask(clusterizer);
   fRun -> AddTask(pulse);
   fRun -> AddTask(psaTask);
   //fRun -> AddTask(trigTask);
-
+  fRun -> AddTask(HoughTask);
+  
   // __ Init and run ___________________________________
 
   fRun -> Init();
-  fRun -> Run(0,200);
+  fRun -> Run(0,100);
 
   std::cout << std::endl << std::endl;
   std::cout << "Macro finished succesfully."  << std::endl << std::endl;

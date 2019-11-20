@@ -188,20 +188,20 @@ Bool_t  AtTpc::ProcessHits(FairVolume* vol)
 //         if(gATVP->GetBeamEvtCnt()%2!=0) LOG(INFO) << " ATTPC: Beam Event " <<FairLogger::endl;
 //         else if(gATVP->GetDecayEvtCnt()%2==0) LOG(INFO) << " ATTPC: Reaction/Decay Event " <<FairLogger::endl;
          AZ = DecodePdG(gMC->TrackPid());
-/*         LOG(INFO) << " ATTPC: First hit in Volume " <<fVolName<< FairLogger::endl;
-         LOG(INFO) << " Particle : "<<gMC->ParticleName(gMC->TrackPid())<<FairLogger::endl;
-         LOG(INFO) << " PID PdG : "<<gMC->TrackPid()<<FairLogger::endl;
-         LOG(INFO) << " Atomic Mass : "<<AZ.first<<FairLogger::endl;
-         LOG(INFO) << " Atomic Number : "<<AZ.second<<FairLogger::endl;
-         LOG(INFO)<<" Volume ID "<<gMC->CurrentVolID(VolumeID)<<FairLogger::endl;
-         LOG(INFO)<<" Track ID : "<<fTrackID<<FairLogger::endl;
-         LOG(INFO)<<" Position : "<<fPosIn.X()<<" "<<fPosIn.Y()<<"  "<<fPosIn.Z()<<std::endl;
-         LOG(INFO)<<" Total relativistic energy " <<gMC->Etot()<< FairLogger::endl;
-         LOG(INFO)<<" Mass of the Tracked particle (gAVTP) : "<<gATVP->GetBeamMass()<<std::endl;
-         LOG(INFO)<<" Mass of the Tracked particle (gMC) : "<<gMC->TrackMass()<<std::endl;
-         LOG(INFO)<<" Initial energy of the current particle in this volume : "<<((gMC->Etot() - gMC->TrackMass()) * 1000.)<<FairLogger::endl;// Relativistic Mass
-         //LOG(INFO)<<" Total energy of the current track (gMC) : "<<((gMC->Etot() - gMC->TrackMass()) * 1000.)<<FairLogger::endl;// Relativistic Mass
-*/
+//         LOG(INFO) << " ATTPC: First hit in Volume " <<fVolName<< FairLogger::endl;
+//         LOG(INFO) << " Particle : "<<gMC->ParticleName(gMC->TrackPid())<<FairLogger::endl;
+//         LOG(INFO) << " PID PdG : "<<gMC->TrackPid()<<FairLogger::endl;
+//         LOG(INFO) << " Atomic Mass : "<<AZ.first<<FairLogger::endl;
+//         LOG(INFO) << " Atomic Number : "<<AZ.second<<FairLogger::endl;
+//         LOG(INFO)<<" Volume ID "<<gMC->CurrentVolID(VolumeID)<<FairLogger::endl;
+//         LOG(INFO)<<" Track ID : "<<fTrackID<<FairLogger::endl;
+//         LOG(INFO)<<" Position : "<<fPosIn.X()<<" "<<fPosIn.Y()<<"  "<<fPosIn.Z()<<std::endl;
+//         LOG(INFO)<<" Total relativistic energy " <<gMC->Etot()<< FairLogger::endl;
+//         LOG(INFO)<<" Mass of the Tracked particle (gAVTP) : "<<gATVP->GetBeamMass()<<std::endl;
+//         LOG(INFO)<<" Mass of the Tracked particle (gMC) : "<<gMC->TrackMass()<<std::endl;
+//         LOG(INFO)<<" Initial energy of the current particle in this volume : "<<((gMC->Etot() - gMC->TrackMass()) * 1000.)<<FairLogger::endl;// Relativistic Mass
+//         //LOG(INFO)<<" Total energy of the current track (gMC) : "<<((gMC->Etot() - gMC->TrackMass()) * 1000.)<<FairLogger::endl;// Relativistic Mass
+
               /*
                std::cout<<" Recoil Energy : "<<gATVP->GetRecoilE()<<std::endl;
       	 std::cout<<" Scattered Energy : "<<gATVP->GetScatterE()<<std::endl;
@@ -432,7 +432,7 @@ Bool_t  AtTpc::ProcessHits(FairVolume* vol)
 
 
         	if(fELossAcc*1000>gATVP->GetRndELoss()  &&   (gATVP->GetBeamEvtCnt()%2!=0 && fTrackID==0) && (fVolName=="drift_volume" || fVolName=="cell")){
-//        	       LOG(INFO)<<" Beam energy loss before reaction : "<<fELossAcc*1000<<FairLogger::endl;
+        	       LOG(INFO)<<" Beam energy loss before reaction : "<<fELossAcc*1000<<FairLogger::endl;
         	       gMC->StopTrack();
                  gATVP->ResetVertex();
                  TLorentzVector StopPos;
@@ -522,7 +522,7 @@ void AtTpc::Reset()
 void AtTpc::Print(Option_t* option) const
 {
     Int_t nHits = fAtTpcPointCollection->GetEntriesFast();
-    LOG(INFO) << "ATTPC: " << nHits << " points registered in this event" << FairLogger::endl;
+//    LOG(INFO) << "ATTPC: " << nHits << " points registered in this event" << FairLogger::endl;
 }
 
 /*void AtTpc::ConstructGeometry()
@@ -644,8 +644,8 @@ AtTpcPoint* AtTpc::AddHit(Int_t trackID,
    // std::cout<< "ATTPC: Adding Point at (" << posIn.X() << ", " << posIn.Y() << ", " << posIn.Z() << ") cm,  detector " << detID << ", track " << trackID
     //<< ", energy loss " << eLoss << " MeV" <<" with accumulated Energy Loss : "<<fELossAcc<<" MeV "<< std::endl;
     if (fVerboseLevel > 1)
-       LOG(INFO) << "ATTPC: Adding Point at (" << posIn.X() << ", " << posIn.Y() << ", " << posIn.Z() << ") cm,  detector " << detID << ", track " << trackID
-                  << ", energy loss " << eLoss * 1e06 << " keV" << FairLogger::endl;
+//       LOG(INFO) << "ATTPC: Adding Point at (" << posIn.X() << ", " << posIn.Y() << ", " << posIn.Z() << ") cm,  detector " << detID << ", track " << trackID
+//                  << ", energy loss " << eLoss * 1e06 << " keV" << FairLogger::endl;
 
 
     return new (clref[size]) AtTpcPoint(trackID,

@@ -127,8 +127,8 @@ void create_materials_from_media_file()
 
   geoBuild->createMedium(isobutan);
   geoBuild->createMedium(steel);
-   geoBuild->createMedium(heco2);
-   geoBuild->createMedium(vacuum4);
+  geoBuild->createMedium(heco2);
+  geoBuild->createMedium(vacuum4);
 }
 
 TGeoVolume* create_detector()
