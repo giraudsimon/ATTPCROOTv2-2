@@ -45,7 +45,6 @@ class ATTriggerTask : public FairTask
      ATEvent*      fEvent;
      ATRawEvent*   fRawEvent;
      TString       fMapPath;
-     
 
      Bool_t fIsTrigger;
      Bool_t fIsPersistent;

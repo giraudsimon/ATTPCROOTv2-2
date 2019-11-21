@@ -3,8 +3,6 @@
 
 #include "ATAnalysis.hh"
 #include "ATRansac.hh"
-#include "ATPatternEvent.hh"
-#include "ATPatternEvent.hh"
 #include "ATTrackingEventAna.hh"
 #include "ATDigiPar.hh"
 #include "ATMCQMinimization.hh"
@@ -21,13 +19,10 @@ class ATTrackingAnalysis : public ATAnalysis{
 	       ATTrackingAnalysis();
         ~ATTrackingAnalysis();
 
-        void Analyze(ATRANSACN::ATRansac *Ransac,ATTrackingEventAna *trackingEventAna,TH2Poly* hPadPlane,const multiarray& PadCoord); // Analysis after RANSAC considering a reaction vertex
-        void AnalyzeSimple(ATRANSACN::ATRansac *Ransac,ATTrackingEventAna *trackingEventAna,TH2Poly* hPadPlane,const multiarray& PadCoord); // Analysis
+        void Analyze(ATRANSACN::ATRansac *Ransac,ATTrackingEventAna *trackingEventAna,TH2Poly* hPadPlane,const multiarray& PadCoord); // Analysis after RANSAC
         void SetElossParameters(std::vector<Double_t> (&parE)[10]);
         void SetEtoRParameters(std::vector<Double_t> (&parRtoE)[10]);
         void AddParticle(std::vector<std::pair<Int_t,Int_t>>& ptcl);
-
-        void Analyze(ATPatternEvent *patternEvent,ATTrackingEventAna *trackingEventAna,TH2Poly* hPadPlane,const multiarray& PadCoord); // Analysis after RANSAC considering a reaction vertex
 
 
       private:
@@ -44,7 +39,6 @@ class ATTrackingAnalysis : public ATAnalysis{
 
           Double_t fVertex; // Physical vertex in mm;
           Double_t fEntTB_calc;//Calculated entrance Time Bucket
-          Double_t fVertexEnergy; //Energy of beam from track length
 
           TGraph *fTrackFit;//!
           TF1 *fFitResult;//!

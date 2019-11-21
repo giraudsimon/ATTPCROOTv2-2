@@ -7,9 +7,9 @@
 #include <vector>
 
 #include "ATHit.hh"
-#include "ATPad.hh"
 #include <map>
-
+//#include "STHitCluster.hh"
+//#include "STTrack.hh"
 
 using std::vector;
 
@@ -23,10 +23,10 @@ class ATEvent : public TNamed {
     void SetEventID(Int_t evtid);
     void AddHit(ATHit *hit);
     void SetHitArray(vector<ATHit> *hitArray);
-
-    void AddAuxPad(ATPad *pad);
-    void SetAuxPadArray(vector<ATPad> *padArray);
-
+    //void AddCluster(ATHitCluster *cluster); //TODO Implement clustering
+    //void SetClusterArray(vector<ATHitCluster> *clusterArray);
+    //void AddTrack(STTrack *track);
+    //void SetTrackArray(vector<STTrack> &trackArray);
     void SetEventCharge(Double_t Qevent);
     void SetRhoVariance(Double_t RhoVariance);
 
@@ -39,7 +39,6 @@ class ATEvent : public TNamed {
     void SetMeshSignal(Int_t idx, Float_t val);
 
     void SetIsGood(Bool_t value);
-    
 
     // getters
     Int_t GetEventID();
@@ -49,8 +48,6 @@ class ATEvent : public TNamed {
     void RemoveHit(Int_t hitNo);
     vector<ATHit> *GetHitArray();
     vector<ATHit>  GetHitArrayObj();
-
-    std::vector<ATPad>* GetAuxPadArray();
 
     Int_t GetNumClusters();
     //ATHitCluster *GetCluster(Int_t clusterNo);
@@ -89,7 +86,8 @@ class ATEvent : public TNamed {
     Int_t fEventID;
 
     vector<ATHit> fHitArray;
-    std::vector<ATPad> fAuxPadArray;
+    //vector<ATHitCluster> fClusterArray;
+    //vector<STTrack> fTrackArray;
     Double_t fQevent;
     Double_t fRhoVariance;
     std::map<Int_t,Int_t> fMultiMap;

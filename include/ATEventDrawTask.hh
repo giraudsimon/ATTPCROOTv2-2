@@ -31,13 +31,11 @@
 #include "ATRawEvent.hh"
 #include "ATEvent.hh"
 #include "ATProtoEvent.hh"
-#include "ATPatternEvent.hh"
 #include "ATTrackingEventAna.hh"
 #include "ATHoughSpaceLine.hh"
 #include "ATHoughSpaceCircle.hh"
 #include "ATHoughSpace.hh"
 #include "ATRansac.hh"
-#include "ATTrackFinderHC.hh"
 #include "ATHit.hh"
 #include "AtTpcMap.h"
 #include "ATProtoQuadrant.hh"
@@ -95,6 +93,7 @@ class ATEventDrawTask : public FairTask
     virtual void DrawThetaxPhi();
     virtual void DrawMC();
 
+
     AtTpcMap *fAtMapPtr;
     void UpdateCvsPadPlane();
     void UpdateCvsPadWave();
@@ -124,7 +123,6 @@ class ATEventDrawTask : public FairTask
     //void DrawHitClusterPoints();
     //void DrawRiemannHits();
 
-    EColor GetTrackColor(int i);
 
     Bool_t fIs2DPlotRange;
     Bool_t fUnpackHough;
@@ -136,15 +134,12 @@ class ATEventDrawTask : public FairTask
     TClonesArray* fHoughSpaceArray;
     TClonesArray* fProtoEventArray;
     TClonesArray* fRansacArray;
-    TClonesArray* fTrackFinderHCArray;
     TClonesArray* fTrackingEventAnaArray;
-    TClonesArray* fPatternEventArray;
 
-    ATHoughSpaceLine*               fHoughSpaceLine_buff;
-    ATHoughSpaceCircle*             fHoughSpaceCircle_buff;
-    ATRANSACN::ATRansac*            fRansac;
-    ATTrackingEventAna*             fTrackingEventAna;
-    ATPATTERN::ATTrackFinderHC*     fTrackFinderHC;
+    ATHoughSpaceLine*    fHoughSpaceLine_buff;
+    ATHoughSpaceCircle*  fHoughSpaceCircle_buff;
+    ATRANSACN::ATRansac* fRansac;
+    ATTrackingEventAna*  fTrackingEventAna;
 
     ATEventManager* fEventManager;
     ATRawEvent* fRawevent;
@@ -157,9 +152,6 @@ class ATEventDrawTask : public FairTask
 
     TEvePointSet* fHitSet;
     TEvePointSet* fHitSetMin;
-
-    TEvePointSet* fHitSetMC[5];// For MC results
-    TEvePointSet* fHitSetTFHC[10];//for TrackFinderHC
 
    // TEveGeoShape* x;
    // std::vector<TEveGeoShape*> hitSphereArray;
@@ -250,14 +242,13 @@ class ATEventDrawTask : public FairTask
 
     TF1 *fHoughLinearFit;
     TF1 *fRansacLinearFit;
-    ATHit const *fIniHit;
-    ATHit const *fIniHitRansac;
+    ATHit *fIniHit;
+    ATHit *fIniHitRansac;
 
 
     //std::vector<TEveLine*> fLineArray;
     TEveLine* fLineArray[5];
     Int_t fLineNum;
-    Int_t fTrackNum;
     //TEveLine* fLine;
 
     ClassDef(ATEventDrawTask,1);

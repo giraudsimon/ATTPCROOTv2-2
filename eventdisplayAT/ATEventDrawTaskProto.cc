@@ -40,13 +40,12 @@ fHitColor(kPink),
 fHitSize(1),
 fHitStyle(kFullDotMedium),
 fHitSet(0),
-fSaveTextData(0),
 fhitBoxSet(0)
 {
   Char_t padhistname[256];
   fMultiHit=10;
 
-  for(Int_t i=0;i<2015;i++){ 
+  for(Int_t i=0;i<300;i++){ // TODO: Full-scale must be accomodated
       sprintf(padhistname,"pad_%d",i);
         fPadAll[i] = new TH1I(padhistname,padhistname,512,0,511);
   }
@@ -68,7 +67,6 @@ fhitBoxSet(0)
           fIsCircularHough=kFALSE;
           fIsLinearHough=kTRUE;
           fIsRawData=kFALSE;
-          kIsPRDrawn=kFALSE;
           fHoughLinearFit =new TF1("HoughLinearFit"," (  (-TMath::Cos([0])/TMath::Sin([0]))*x ) + [1]/TMath::Sin([0])",0,500);
 
           for (Int_t i=0;i<4;i++){
@@ -103,7 +101,7 @@ ATEventDrawTaskProto::Init()
   fEventManager = ATEventManagerProto::Instance();
   fDetmap  =  new AtTpcProtoMap();
   fDetmap -> SetProtoMap(fMap.Data());
-  fDetmap -> SetGeoFile("proto20181201_geo_hires.root");
+  fDetmap -> SetGeoFile("proto_geo_hires.root");
   fDetmap -> SetName("fMap");
   gROOT->GetListOfSpecials()->Add(fDetmap);
 
@@ -116,20 +114,15 @@ ATEventDrawTaskProto::Init()
        fIsRawData=kTRUE;
   }
 
-  fPatternEventArray = (TClonesArray*) ioMan->GetObject("ATPatternEvent");
-    if(fPatternEventArray) LOG(INFO)<<cGREEN<<"Pattern Event Array Found."<<cNORMAL<<FairLogger::endl;
-
-  //fHoughSpaceArray =  (TClonesArray*) ioMan->GetObject("ATHough");
-  //if(fHoughSpaceArray) LOG(INFO)<<cGREEN<<"Hough Array Found."<<cNORMAL<<FairLogger::endl;
+  fHoughSpaceArray =  (TClonesArray*) ioMan->GetObject("ATHough");
+  if(fHoughSpaceArray) LOG(INFO)<<cGREEN<<"Hough Array Found."<<cNORMAL<<FairLogger::endl;
 
 
-  //fProtoEventArray =  (TClonesArray*) ioMan->GetObject("ATProtoEvent");
-  //if(fProtoEventArray) LOG(INFO)<<cGREEN<<"Prototype Event Array Found."<<cNORMAL<<FairLogger::endl;
+  fProtoEventArray =  (TClonesArray*) ioMan->GetObject("ATProtoEvent");
+  if(fProtoEventArray) LOG(INFO)<<cGREEN<<"Prototype Event Array Found."<<cNORMAL<<FairLogger::endl;
 
   fProtoEventAnaArray =  (TClonesArray*) ioMan->GetObject("ATProtoEventAna");
-   if(fProtoEventAnaArray) LOG(INFO)<<cGREEN<<"Prototype Event Analysis Array Found."<<cNORMAL<<FairLogger::endl;
-
-  
+  if(fProtoEventAnaArray) LOG(INFO)<<cGREEN<<"Prototype Event Analysis Array Found."<<cNORMAL<<FairLogger::endl;
 
   //Drawing histograms
 
@@ -146,7 +139,7 @@ ATEventDrawTaskProto::Init()
   DrawPadAll();
   fCvsMesh = fEventManager->GetCvsMesh();
   DrawMesh();
-  /*fCvsQuadrant1 = fEventManager->GetCvsQuadrant1();
+  fCvsQuadrant1 = fEventManager->GetCvsQuadrant1();
   fCvsQuadrant2 = fEventManager->GetCvsQuadrant2();
   fCvsQuadrant3 = fEventManager->GetCvsQuadrant3();
   fCvsQuadrant4 = fEventManager->GetCvsQuadrant4();
@@ -160,10 +153,9 @@ ATEventDrawTaskProto::Init()
   fCvsVertex =  fEventManager->GetCvsVertex();
   fCvsKineAA =  fEventManager->GetCvsKineAA();
   DrawProtoVertex();
-  DrawProtoKine();*/
+  DrawProtoKine();
   fCvsAux   =   fEventManager->GetCvsAux();
   DrawProtoAux();
-
 
 
 }
@@ -172,11 +164,13 @@ void
 ATEventDrawTaskProto::Exec(Option_t* option)
 {
     Reset();
-  
+  //ResetPadAll();
+  //ResetPhiDistr();
+
     if(fHitArray)           DrawHitPoints();
-    //if(fProtoEventArray)    DrawProtoPattern();
-    //if(fHoughSpaceArray)    DrawProtoHough();
-    //if(fProtoEventAnaArray) DrawProtoPatternAna();
+    if(fProtoEventArray)    DrawProtoPattern();
+    if(fHoughSpaceArray)    DrawProtoHough();
+    if(fProtoEventAnaArray) DrawProtoPatternAna();
 
     gEve -> Redraw3D(kFALSE);
 
@@ -184,10 +178,10 @@ ATEventDrawTaskProto::Exec(Option_t* option)
     UpdateCvsPadPlane();
     UpdateCvsPadAll();
     UpdateCvsMesh();
-    //UpdateCvsProtoQ();
-    //UpdateCvsProtoEL();
-    //UpdateCvsProtoVertex();
-    //UpdateCvsProtoKine();
+    UpdateCvsProtoQ();
+    UpdateCvsProtoEL();
+    UpdateCvsProtoVertex();
+    UpdateCvsProtoKine();
     UpdateCvsProtoAux();
 
 }
@@ -208,26 +202,6 @@ ATEventDrawTaskProto::Reset()
 
   }
 
-  if(fEventManager->GetDrawPatternRecognition()){
-
-
-        if(fPatternEventArray!=NULL & kIsPRDrawn==kTRUE){
-
-                if(fLineNum>0){
-                    for(Int_t i=0;i<fLineNum;i++){
-                        if(fHitSetPR[i]!=NULL){
-                            gEve -> RemoveElement(fHitSetPR[i],fEventManager);
-                        }
-                    }
-                }
-
-        }
-
-        kIsPRDrawn = kFALSE;
-
-
-  }  
-
   if(fPadPlane!=NULL)
     fPadPlane->Reset(0);
 
@@ -242,12 +216,9 @@ ATEventDrawTaskProto::DrawHitPoints()
 
   Float_t *MeshArray;
   fMesh->Reset(0);
-  for(Int_t i=0;i<9;i++) fAuxChannels[i]->Reset(0);
+  for(Int_t i=0;i<4;i++) fAuxChannels[i]->Reset(0);
   //f3DHist->Reset(0);
   //TRandom r(0);
-
-    for(Int_t i=0;i<2015;i++)
-        fPadAll[i]->Reset(0);
 
 
   std::ofstream dumpEvent;
@@ -260,174 +231,94 @@ ATEventDrawTaskProto::DrawHitPoints()
 
   //fQEventHist_H->Reset(0);
   ATEvent* event = (ATEvent*) fHitArray->At(0); // TODO: Why this confusing name? It should be fEventArray
-  Int_t nHits=0;
+  Double_t Qevent=event->GetEventCharge();
+  Double_t RhoVariance=event->GetRhoVariance();
+  MeshArray = event->GetMesh();
+  Int_t eventID=event->GetEventID();
+  TString TSevt =" Event ID : ";
+  TString TSpad =" Pad ID : ";
+  dumpEvent<<TSevt<<eventID<<std::endl;
 
-  if(event!=NULL)
-  {
-    Double_t Qevent=event->GetEventCharge();
-    Double_t RhoVariance=event->GetRhoVariance();
-    MeshArray = event->GetMesh();
-    Int_t eventID=event->GetEventID();
-    nHits = event->GetNumHits();
-    TString TSevt =" Event ID : ";
-    TString TSpad =" Pad ID : ";
-    dumpEvent<<TSevt<<eventID<<std::endl;
+  //if(fEventManager->GetEraseQEvent()){
+	//fQEventHist->Reset();
+  //      fRhoVariance->Reset();
+  //}
 
-     /* if(fEventManager->GetEraseQEvent()){
-    	 fQEventHist->Reset();
-       fRhoVariance->Reset();
-      }
+  //fQEventHist->Fill(Qevent);
+  //fQEventHist_H->Fill(Qevent);
+  //fRhoVariance->Fill(RhoVariance);
 
-      fQEventHist->Fill(Qevent);
-      fQEventHist_H->Fill(Qevent);
-      fRhoVariance->Fill(RhoVariance);*/
+    for(Int_t i=0;i<512;i++){
 
-        for(Int_t i=0;i<512;i++){
+		fMesh->SetBinContent(i,MeshArray[i]);
 
-    		fMesh->SetBinContent(i,MeshArray[i]);
-
-    	}
-    }//if(event=!NULL) 
-
-          fHitSet = new TEvePointSet("Hit",nHits, TEvePointSelectorConsumer::kTVT_XYZ);
-          fHitSet->SetOwnIds(kTRUE);
-          fHitSet->SetMarkerColor(fHitColor);
-          fHitSet->SetMarkerSize(fHitSize);
-          fHitSet->SetMarkerStyle(fHitStyle);
-          std::cout<<cYELLOW<<" Number of hits : "<<nHits<<cNORMAL<<std::endl;
-
-
-          //////////////////////////////////////////////
-
-          fhitBoxSet = new TEveBoxSet("hitBox");
-          fhitBoxSet->Reset(TEveBoxSet::kBT_AABox, kTRUE, 64);
-
-          for(Int_t iHit=0; iHit<nHits; iHit++)
-          {
-
-            ATHit hit = event->GetHitArray()->at(iHit);
-            Int_t PadNumHit = hit.GetHitPadNum();
-            Int_t PadMultHit = event->GetHitPadMult(PadNumHit);
-            Double_t BaseCorr = hit.GetBaseCorr();
-            Int_t Atbin = -1;
-
-
-
-            //if(hit.GetCharge()<fThreshold) continue;
-            //if(PadMultHit>fMultiHit) continue;
-            TVector3 position = hit.GetPosition();
-            TVector3 positioncorr = hit.GetPositionCorr();
-
-
-            fHitSet->SetMarkerColor(fHitColor);
-            fHitSet->SetNextPoint(position.X()/10.,position.Y()/10.,position.Z()/10.); // Convert into cm
-            fHitSet->SetPointId(new TNamed(Form("Hit %d",iHit),""));
-            Atbin = fPadPlane->Fill(position.X(), position.Y(), hit.GetCharge());
-
-            Bool_t fValidPad;
-
-
-            
-            //if(fSaveTextData)
-              //dumpEvent<<position.X()<<" "<<position.Y()<<" "<<position.Z()<<" "<<hit.GetTimeStamp()<<" "<<hit.GetCharge()<<std::endl;
-
-          }
-            //////////////////////// Colored Box Drawing ////////////////
-
-            //fPadPlane -> Draw("zcol");
-            gPad ->Update();
-            fPadPlanePal
-            = (TPaletteAxis *) fPadPlane->GetListOfFunctions()->FindObject("palette");
-
-
-
-
-
-            for(Int_t iHit=0; iHit<nHits; iHit++)
-            {
-
-                ATHit hit = event->GetHitArray()->at(iHit);
-                TVector3 position = hit.GetPosition();
-                TVector3 positioncorr = hit.GetPositionCorr();
-
-                if(f3DHitStyle==0){
-
-                  Float_t HitBoxYDim = hit.GetCharge()*0.001;
-                  Float_t HitBoxZDim = 0.05;
-                  Float_t HitBoxXDim = 0.05;
-
-
-                  fhitBoxSet->AddBox(position.X()/10. - HitBoxXDim/2.0, position.Y()/10., position.Z()/10. - HitBoxZDim/2.0,
-                  HitBoxXDim,HitBoxYDim,HitBoxZDim); //This coordinates are x,y,z in our system
-
-
-                }else if(f3DHitStyle==1){
-
-                 Float_t HitBoxYDim = hit.GetCharge()*0.0002;
-                 Float_t HitBoxZDim = hit.GetCharge()*0.0002;
-                 Float_t HitBoxXDim = hit.GetCharge()*0.0002;
-
-
-
-                 fhitBoxSet->AddBox(position.X()/10. - HitBoxXDim/2.0, position.Y()/10. - HitBoxYDim/2.0, position.Z()/10. - HitBoxZDim/2.0,
-                          HitBoxXDim,HitBoxYDim,HitBoxZDim); //This coordinates are x,y,z in our system
-
-
-              }
-
-            Float_t xrgb=255,yrgb=0,zrgb=0;
-            if(fPadPlanePal){
-
-                Int_t cHit = fPadPlanePal->GetValueColor(hit.GetCharge());
-                TColor *hitBoxColor = gROOT->GetColor(cHit);
-                hitBoxColor->GetRGB(xrgb,yrgb,zrgb);
-
-            }
-
-                 fhitBoxSet->DigitColor(xrgb*255,yrgb*255,zrgb*255, 0);
-
-                 dumpEvent<<position.X()<<" "<<position.Y()<<" "<<position.Z()<<" "<<hit.GetTimeStamp()<<" "<<hit.GetCharge()<<std::endl;
-
-            }
-
-             /////////////////////// End of colored box drawing ////////////////////////////
-
-            fhitBoxSet->RefitPlex();
-            TEveTrans& tHitBoxPos = fhitBoxSet->RefMainTrans();
-            tHitBoxPos.SetPos(0.0, 0.0, 0.0);
-
-           //for(Int_t i=0;i<hitSphereArray.size();i++) gEve->AddElement(hitSphereArray[i]);
+	}
 
 
   if(fIsRawData){
+  fRawevent = (ATRawEvent*) fRawEventArray->At(0);
+  fRawevent->SetName("fRawEvent");
+  gROOT->GetListOfSpecials()->Add(fRawevent);
 
-      fRawevent = (ATRawEvent*) fRawEventArray->At(0);
+          Int_t aux_cnt=0;
 
-      if(fRawevent){
-          fRawevent->SetName("fRawEvent");
-          gROOT->GetListOfSpecials()->Add(fRawevent);
-
-                  Int_t aux_cnt=0;
-
-                  std::vector<ATPad>* PadArray = fRawevent->GetPads();
-                  for(Int_t i=0;i<PadArray->size();i++){
-                    ATPad Pad = PadArray->at(i);
-                      if(Pad.IsAux()){
-                        if(aux_cnt<9){
-                            std::cout<<cYELLOW<<" Auxiliary Channel "<<aux_cnt<<" - Name "<<Pad.GetAuxName()<<cNORMAL<<"\n";
-                            Int_t *rawadc = Pad.GetRawADC();
-                            for(Int_t j=0;j<512;j++) fAuxChannels[aux_cnt]->SetBinContent(j,rawadc[j]);
-                            aux_cnt++;
-                        }else std::cout<<cYELLOW<<" Warning : More auxiliary external channels than expected (max. 9)"<<cNORMAL<<std::endl;
-                      }
+          std::vector<ATPad>* PadArray = fRawevent->GetPads();
+          for(Int_t i=0;i<PadArray->size();i++){
+            ATPad Pad = PadArray->at(i);
+              if(Pad.IsAux()){
+                if(aux_cnt<4){
+                Int_t *rawadc = Pad.GetRawADC();
+                    for(Int_t j=0;j<512;j++) fAuxChannels[aux_cnt]->SetBinContent(j,rawadc[j]);
+                    aux_cnt++;
+                }else std::cout<<cYELLOW<<" Warning : More auxiliary external channels than expected (max. 4)"<<cNORMAL<<std::endl;
+              }
 
 
-                  }
+          }
 
-       }//if raw event           
   }
 
-    /*if(fIsRawData){
+
+  Int_t nHits = event->GetNumHits();
+  fHitSet = new TEvePointSet("Hit",nHits, TEvePointSelectorConsumer::kTVT_XYZ);
+  fHitSet->SetOwnIds(kTRUE);
+  fHitSet->SetMarkerColor(fHitColor);
+  fHitSet->SetMarkerSize(fHitSize);
+  fHitSet->SetMarkerStyle(fHitStyle);
+  std::cout<<cYELLOW<<" Number of hits : "<<nHits<<cNORMAL<<std::endl;
+
+
+  //////////////////////////////////////////////
+
+  fhitBoxSet = new TEveBoxSet("hitBox");
+  fhitBoxSet->Reset(TEveBoxSet::kBT_AABox, kTRUE, 64);
+
+  for(Int_t iHit=0; iHit<nHits; iHit++)
+  {
+
+    ATHit hit = event->GetHitArray()->at(iHit);
+    Int_t PadNumHit = hit.GetHitPadNum();
+    Int_t PadMultHit = event->GetHitPadMult(PadNumHit);
+    Double_t BaseCorr = hit.GetBaseCorr();
+    Int_t Atbin = -1;
+
+
+
+    //if(hit.GetCharge()<fThreshold) continue;
+    //if(PadMultHit>fMultiHit) continue;
+    TVector3 position = hit.GetPosition();
+    TVector3 positioncorr = hit.GetPositionCorr();
+
+
+    fHitSet->SetMarkerColor(fHitColor);
+    fHitSet->SetNextPoint(position.X()/10.,position.Y()/10.,position.Z()/10.); // Convert into cm
+    fHitSet->SetPointId(new TNamed(Form("Hit %d",iHit),""));
+    Atbin = fPadPlane->Fill(position.X(), position.Y(), hit.GetCharge());
+
+    Bool_t fValidPad;
+
+
+    if(fIsRawData){
     ATPad *RawPad = fRawevent->GetPad(PadNumHit,fValidPad);
     Double_t *adc = RawPad->GetADC();
         for(Int_t i=0;i<512;i++){
@@ -437,112 +328,113 @@ ATEventDrawTaskProto::DrawHitPoints()
             //f3DHist->Fill(position.X()/10.,position.Y()/10.,i,adc[i]);
 
           }
-    }*/
+    }
+
+    //if(fSaveTextData)
+      //dumpEvent<<position.X()<<" "<<position.Y()<<" "<<position.Z()<<" "<<hit.GetTimeStamp()<<" "<<hit.GetCharge()<<std::endl;
+
+  }
+    //////////////////////// Colored Box Drawing ////////////////
+
+    //fPadPlane -> Draw("zcol");
+    gPad ->Update();
+    fPadPlanePal
+    = (TPaletteAxis *) fPadPlane->GetListOfFunctions()->FindObject("palette");
 
 
-  if(fIsRawData){
-
-    if(fRawevent!=NULL){
-
-        Int_t nPads = fRawevent->GetNumPads();
-        std::cout<<"Num of pads : "<<nPads<<std::endl;
-
-            for(Int_t iPad = 0;iPad<nPads;iPad++){
-
-                ATPad *fPad = fRawevent->GetPad(iPad);
-                //std::cout<<"Pad num : "<<iPad<<" Is Valid? : "<<fPad->GetValidPad()<<" Pad num in pad object :"<<fPad->GetPadNum()<<std::endl;
-
-                 if(fPad!=NULL){
-                      Int_t *rawadc = fPad->GetRawADC();
-                      Double_t *adc = fPad->GetADC();
-                      Int_t PadNum_temp = fPad->GetPadNum();
-          	          // dumpEvent<<TSpad<<fPad->GetPadNum()<<std::endl;
-                      if (fPad->GetValidPad() && PadNum_temp<2015 && PadNum_temp>-1){
-
-                         for(Int_t j=0;j<512;j++){                          
-                              fPadAll[PadNum_temp]->SetBinContent(j,adc[j]);
-                          }
-
-                      }
-                  }    
-
-            }//Pads
-
-      }//NULL      
-
-  }//Rawdata
 
 
-    if(fEventManager->GetDrawPatternRecognition())
+
+    for(Int_t iHit=0; iHit<nHits; iHit++)
     {
 
-        for(Int_t i=0;i<10;i++) fLineArray[i] = new TEveLine();
-        int n = 100;
-        double t0 = 0;
-        double dt = 2000;
-        std::vector<ATTrack> TrackCand;
+    ATHit hit = event->GetHitArray()->at(iHit);
+    TVector3 position = hit.GetPosition();
+    TVector3 positioncorr = hit.GetPositionCorr();
+
+        if(f3DHitStyle==0){
+
+          Float_t HitBoxYDim = hit.GetCharge()*0.001;
+          Float_t HitBoxZDim = 0.05;
+          Float_t HitBoxXDim = 0.05;
+
+
+          fhitBoxSet->AddBox(position.X()/10. - HitBoxXDim/2.0, position.Y()/10., position.Z()/10. - HitBoxZDim/2.0,
+          HitBoxXDim,HitBoxYDim,HitBoxZDim); //This coordinates are x,y,z in our system
+
+
+        }else if(f3DHitStyle==1){
+
+         Float_t HitBoxYDim = hit.GetCharge()*0.0002;
+         Float_t HitBoxZDim = hit.GetCharge()*0.0002;
+         Float_t HitBoxXDim = hit.GetCharge()*0.0002;
 
 
 
-        if(fPatternEventArray){
-
-            ATPatternEvent* patternEvent = dynamic_cast<ATPatternEvent*> (fPatternEventArray->At(0));
-
-           if(patternEvent!=NULL)
-           {
-            TrackCand = patternEvent->GetTrackCand();
-            for(Int_t i=0;i<10;i++) fHitSetPR[i] = 0;
-
-            fLineNum = TrackCand.size();
-            std::cout<<cRED<<" Found "<<TrackCand.size()<<" track candidates "<<cNORMAL<<std::endl;
-
-              if(TrackCand.size()<10){
-                    for(Int_t i=0;i<TrackCand.size();i++)
-                    {
-
-                        ATTrack track = TrackCand.at(i);
-                        std::vector<ATHit>* trackHits =  track.GetHitArray();
-                        int nHitsMin = trackHits->size();
-
-                        fHitSetPR[i] = new TEvePointSet(Form("HitPR_%d",i),nHitsMin, TEvePointSelectorConsumer::kTVT_XYZ);
-                        if(track.GetIsNoise()) fHitSetPR[i]->SetMarkerColor(kRed);
-                        else fHitSetPR[i]->SetMarkerColor(GetTrackColor(i)+1);
-                        fHitSetPR[i]->SetMarkerSize(fHitSize);
-                        fHitSetPR[i]->SetMarkerStyle(fHitStyle);
+         fhitBoxSet->AddBox(position.X()/10. - HitBoxXDim/2.0, position.Y()/10. - HitBoxYDim/2.0, position.Z()/10. - HitBoxZDim/2.0,
+                  HitBoxXDim,HitBoxYDim,HitBoxZDim); //This coordinates are x,y,z in our system
 
 
-                          for(int j =0;j<trackHits->size();++j){
-                            TVector3 position = trackHits->at(j).GetPosition();
-                            fHitSetPR[i]->SetNextPoint(position.X()/10.,position.Y()/10.,position.Z()/10.);
+      }
 
-                          }
+    Float_t xrgb=255,yrgb=0,zrgb=0;
+    if(fPadPlanePal){
 
-                      if(fEventManager->GetDrawPatternRecognition()) gEve -> AddElement(fHitSetPR[i]);
-                      kIsPRDrawn=kTRUE;
+        Int_t cHit = fPadPlanePal->GetValueColor(hit.GetCharge());
+        TColor *hitBoxColor = gROOT->GetColor(cHit);
+        hitBoxColor->GetRGB(xrgb,yrgb,zrgb);
 
-                    }
-               }
+    }
+
+         fhitBoxSet->DigitColor(xrgb*255,yrgb*255,zrgb*255, 0);
+
+    }
+
+     /////////////////////// End of colored box drawing ////////////////////////////
+
+    fhitBoxSet->RefitPlex();
+    TEveTrans& tHitBoxPos = fhitBoxSet->RefMainTrans();
+    tHitBoxPos.SetPos(0.0, 0.0, 0.0);
+
+   //for(Int_t i=0;i<hitSphereArray.size();i++) gEve->AddElement(hitSphereArray[i]);
+
+
+ if(fIsRawData){
+    Int_t nPads = fRawevent->GetNumPads();
+    std::cout<<"Num of pads : "<<nPads<<std::endl;
+
+        for(Int_t iPad = 0;iPad<nPads;iPad++){
+
+
+            ATPad *fPad = fRawevent->GetPad(iPad);
+            //std::cout<<"Pad num : "<<iPad<<" Is Valid? : "<<fPad->GetValidPad()<<" Pad num in pad object :"<<fPad->GetPadNum()<<std::endl;
+            Int_t *rawadc = fPad->GetRawADC();
+            Double_t *adc = fPad->GetADC();
+	   // dumpEvent<<TSpad<<fPad->GetPadNum()<<std::endl;
+
+            for(Int_t j=0;j<512;j++){ // TODO: This is limited to 256 pads only. Increment the size of the array and put another option for ATTPC
+
+                if (fPad->GetValidPad() && iPad<256){
+
+
+                    fPadAll[iPad]->SetBinContent(j,adc[j]);
+
+
+                }
+
+
+
             }
-      }    
 
 
-    } 
+        }
+
+  }
 
 
-    if(!fEventManager->GetDrawPatternRecognition()){
 
-      gEve -> AddElement(fHitSet);
-      gEve -> AddElement(fhitBoxSet);
-
-     }else if(fEventManager->GetDrawPatternRecognition()){
-     
-
-       //if(fPatternEventArray)
-            // if(fLineNum>0) for(Int_t i=0;i<fLineNum;i++) gEve -> AddElement(fHitSetPR[i]);
-
-     }   
-
-     dumpEvent.close();      
+    gEve -> AddElement(fHitSet);
+    gEve -> AddElement(fhitBoxSet);
 
 }
 
@@ -723,13 +615,7 @@ ATEventDrawTaskProto::DrawPadPlane()
 
     fPadPlane = fDetmap->GetATTPCPlane("ATTPC_Proto");
     fCvsPadPlane -> cd();
-    //fPadPlane -> Draw("zcol");
-    //fPadPlane -> Draw("COL L0");
-    fPadPlane -> Draw("COL L");
-    fPadPlane -> SetMinimum(1.0);
-    gStyle->SetOptStat(0);
-    gStyle->SetPalette(103);
-    gPad ->Update();
+    fPadPlane -> Draw("zcol");
 
 
 
@@ -742,18 +628,16 @@ ATEventDrawTaskProto::DrawPadAll()
     
     fCvsPadAll->cd();
     
-    for(Int_t i=0;i<2015;i++){
+    for(Int_t i=0;i<300;i++){
         //fPadAll[i]->Reset(0);
         //fPadAll[i] = new TH1I("fPadAll","fPadAll",512,0,511);
         fPadAll[i]->GetYaxis()->SetRangeUser(0,2500);
-        fPadAll[i]->SetLineColor(8);
-
-        /*if (i<64) fPadAll[i]->SetLineColor(6);                         // Q1, pink
+        // TODO: make it pad number independent / retrieve the quadrant info
+        if (i<64) fPadAll[i]->SetLineColor(6);                         // Q1, pink
         else if(i>=64 && i<127) fPadAll[i]->SetLineColor(8);           // Q2, green
         else if(i>=127 && i<190) fPadAll[i]->SetLineColor(7);           // Q3, blue
         else if(i>=190 && i<253) fPadAll[i]->SetLineColor(kOrange-3);   // Q4, orange
-        else fPadAll[i]->SetLineColor(0);                              //white for non physical pads*/
-
+        else fPadAll[i]->SetLineColor(0);                              //white for non physical pads
         fPadAll[i] -> Draw("SAME");
         
     }
@@ -930,8 +814,8 @@ ATEventDrawTaskProto::DrawProtoKine()
 void ATEventDrawTaskProto::DrawProtoAux()
 {
 
-    fCvsAux->Divide(3,3);
-    for(Int_t i=0;i<9;i++){
+    fCvsAux->Divide(2,2);
+    for(Int_t i=0;i<4;i++){
       fAuxChannels[i] = new TH1F(Form("Auxiliary_Channel_%i",i),Form("AuxChannel%i",i),512,0,511);
       fCvsAux->cd(1+i);
       fAuxChannels[i]->Draw();
@@ -1043,21 +927,6 @@ ATEventDrawTaskProto::UpdateCvsProtoAux(){
     TPad* Pad_4 = (TPad*)fCvsAux->GetPad(4);
     Pad_4->Modified();
     Pad_4->Update();
-    TPad* Pad_5 = (TPad*)fCvsAux->GetPad(5);
-    Pad_5->Modified();
-    Pad_5->Update();
-    TPad* Pad_6 = (TPad*)fCvsAux->GetPad(6);
-    Pad_6->Modified();
-    Pad_6->Update();
-    TPad* Pad_7 = (TPad*)fCvsAux->GetPad(7);
-    Pad_7->Modified();
-    Pad_7->Update();
-    TPad* Pad_8 = (TPad*)fCvsAux->GetPad(8);
-    Pad_8->Modified();
-    Pad_8->Update();
-    TPad* Pad_9 = (TPad*)fCvsAux->GetPad(9);
-    Pad_9->Modified();
-    Pad_9->Update();
     fCvsAux->Modified();
     fCvsAux->Update();
   //}
@@ -1167,12 +1036,3 @@ ATEventDrawTaskProto::Set3DHitStyleBar() {f3DHitStyle=0;}
 
 void
 ATEventDrawTaskProto::Set3DHitStyleBox() {f3DHitStyle=1;}
-
-EColor ATEventDrawTaskProto::GetTrackColor(int i)
-{
-   std::vector<EColor> colors = {kAzure,kOrange,kViolet,kTeal,kMagenta,kBlue,kViolet,kYellow,kCyan,kAzure};
-   if(i<10){
-     return colors.at(i);
-   }else return kAzure;
-
-}

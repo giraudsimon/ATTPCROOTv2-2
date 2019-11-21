@@ -1,4 +1,4 @@
-void Mg20_p_sim(Int_t nEvents = 10, TString mcEngine = "TGeant4")
+void Mg20_p_sim(Int_t nEvents = 1000, TString mcEngine = "TGeant4")
 {
 
   TString dir = getenv("VMCWORKDIR");
@@ -115,13 +115,13 @@ void Mg20_p_sim(Int_t nEvents = 10, TString mcEngine = "TGeant4")
 
                   // ---- Beam ----
                   Zp.push_back(z); // 40Ar TRACKID=0
-            		  Ap.push_back(a); //
-            		  Qp.push_back(q);
-            		  Pxp.push_back(px);
-            		  Pyp.push_back(py);
-            		  Pzp.push_back(pz);
-            		  Mass.push_back(Bmass);
-            		  ExE.push_back(BExcEner);
+		  Ap.push_back(a); //
+		  Qp.push_back(q);
+		  Pxp.push_back(px);
+		  Pyp.push_back(py);
+		  Pzp.push_back(pz);
+		  Mass.push_back(Bmass);
+		  ExE.push_back(BExcEner);
 
                   // ---- Target ----
                  Zp.push_back(1); // p

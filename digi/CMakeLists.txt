@@ -45,14 +45,13 @@ Set(LINKDEF ATDigiLinkDef.h)
 Set(LIBRARY_NAME ATDigi)
 Set(DEPENDENCIES
   Base
-  #MCStack
+  MCStack
 # Add all library names your code depending on.
 # Basically those are the libraries in the header files' directory.
   AtTpc
   AtGen
   ATPar
   ATTPCReco
-  AtTpcMap
 )
 
 GENERATE_LIBRARY()

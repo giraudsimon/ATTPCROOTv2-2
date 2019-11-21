@@ -37,12 +37,7 @@
 #include "TPolyLine.h"
 
 
-#define cRED "\033[1;31m"
-#define cYELLOW "\033[1;33m"
-#define cNORMAL "\033[0m"
-#define cGREEN "\033[1;32m"
-#define cBLUE "\033[1;34m"
-#define cWHITERED "\033[37;41m"
+
 
 
 #include <iostream>
@@ -414,7 +409,7 @@ ATEventManager::GotoEvent(Int_t event)
 {
 
   fEntry=event;
-  std::cout<<cWHITERED<<" Event number : "<<fEntry<<cNORMAL<<std::endl;
+  std::cout<<" Event number : "<<fEntry<<std::endl;
   fRunAna->Run((Long64_t)event);
 
 }
@@ -691,11 +686,13 @@ void ATEventManager::Select3DThres()
 void ATEventManager::SaveASCIIEvent()
 {
 
+   char s[64], *e;
    Int_t event=fEntry;
    TFile* file =FairRootManager::Instance()->GetInChain()->GetFile();
-   std::string file_name = file->GetName();
-   std::string cmd = "mv event.dat event_" + std::to_string(event) + ".dat";
-   gSystem->Exec(cmd.c_str());
+   char *filename = (char*)file->GetName();
+   sprintf(s, "mv event.dat %s_event_%i.dat",filename, event);
+   //gSystem->Exec("mv event.dat test.dat");
+   gSystem->Exec(s);
 
 }
 

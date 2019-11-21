@@ -47,31 +47,16 @@ void AtTpcMap::Initialize()
   PadKey.clear();
   fIniPads.clear();
   hPlane = new TH2Poly();
-
-  
 }
 
 void AtTpcMap::Dump(){
 
-  std::ofstream coordmap;
-  coordmap.open("coordmap.txt");
-
     int values = 0;
-  	 for(index i = 0; i != 10240; ++i){
-        coordmap<<i<<"  ";
-   	   for(index j = 0; j != 3; ++j){
-     	     for(index k = 0; k != 2; ++k){
+  	 for(index i = 0; i != 10240; ++i)
+   	   for(index j = 0; j != 3; ++j)
+     	     for(index k = 0; k != 2; ++k)
              	std::cout<<" ATTPC Triangular pad coordinates - Pad Index : "<<i<<"   X("<<j<<")  -  Y("<<k<<") :"<<AtPadCoord[i][j][k]<<std::endl;
-              coordmap<<AtPadCoord[i][j][k]<<"  ";
-           }//k
-        }//j
 
-        coordmap<<std::endl;
-
-      }//i
-
-  coordmap.close();
-      
 }
 
 void AtTpcMap::GenerateATTPC(){
@@ -284,13 +269,7 @@ void AtTpcMap::ParseMapList(TXMLNode *node){
 
 	for(; node;node=node->GetNextNode()){
 	 if(node->GetNodeType()==TXMLNode::kXMLElementNode){ //Element node
-	    if(strcmp(node->GetNodeName(),"e17504_fission") == 0 
-      || strcmp(node->GetNodeName(),"Lookup20150611") == 0
-      || strcmp(node->GetNodeName(),"e18505") == 0 
-      || strcmp(node->GetNodeName(),"LookupProto20150331") == 0 
-      || strcmp(node->GetNodeName(),"LookupProto10Be") == 0
-      || strcmp(node->GetNodeName(),"LookupProto20181201v2") == 0
-      || strcmp(node->GetNodeName(),"LookupProtoND") == 0){ //TODO Implement this as function parameter ( I Know this is very dirty
+	    if(strcmp(node->GetNodeName(),"Lookup20150611") == 0 || strcmp(node->GetNodeName(),"LookupProto20150331") == 0 || strcmp(node->GetNodeName(),"LookupProto10Be") == 0){ //TODO Implement this as function parameter ( I Know this is very dirty
 				//cout<<node->GetNodeName()<<endl;
                                 //if(strcmp(node->GetNodeName(),"Lookup20141208") == 0){
 				ParseATTPCMap(node->GetChildren());

@@ -13,7 +13,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION  2.8.2 FATAL_ERROR)
 
 foreach(p
   CMP0025 # CMake 3.0
-  CMP0028 # double colon for imported and alias targets
   CMP0042 # CMake 3.0
   )
   if(POLICY ${p})
@@ -24,10 +23,6 @@ endforeach()
 # Set name of our project to “ATTPC". Has to be done
 # after check of cmake version since this is a new feature
 project(ATTPC)
-
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 #In case you need Fortran
 #ENABLE_LANGUAGE(Fortran)
@@ -106,13 +101,6 @@ CHECK_EXTERNAL_PACKAGE_INSTALL_DIR()
 # For example the framework can run without GEANT4, but ROOT is
 # mandatory
 
-if(SIMPATH)
-  set(CMAKE_PREFIX_PATH ${SIMPATH} ${CMAKE_PREFIX_PATH})
-endif()
-
-set(PCL_DIR "/mnt/data/fair_install/pcl_1.8.1/share/pcl-1.8/")
-
-find_package(FairLogger 1.1.0 REQUIRED)
 find_package(ROOT 5.32.00 REQUIRED)
 find_package(Pythia8)
 find_package(GENERATORS REQUIRED)
@@ -123,10 +111,10 @@ find_package(GEANT4VMC)
 find_package(CLHEP)
 find_package(CERNLIB)
 find_package(HEPMC)
-find_package(HDF5 REQUIRED)
+find_package(HDF5)
 find_package(OpenMP)
 find_package(CUDA)
-find_package(PCL 1.3 REQUIRED)
+find_package(PCL)
 find_package(Eigen)
 #find_package(FLANN)
 #find_package(VTK)
@@ -244,6 +232,8 @@ add_subdirectory (reco)
 add_subdirectory (par)
 add_subdirectory (eventdisplayAT)
 add_subdirectory (digi)
+
+
 
 WRITE_CONFIG_FILE(config.sh)
 

@@ -15,7 +15,6 @@ ${CMAKE_SOURCE_DIR}/eventdisplayAT
 ${CMAKE_SOURCE_DIR}/reco/ATDecoder
 ${CMAKE_SOURCE_DIR}/reco/HoughTransformation
 ${CMAKE_SOURCE_DIR}/reco/ATRansac
-${CMAKE_SOURCE_DIR}/reco/ATPatternRecognition
 ${CMAKE_SOURCE_DIR}/par
 
 )
@@ -44,7 +43,7 @@ Set(LINKDEF ATEventDisplayLinkDef.h) # Change the linkdef name and delete this c
 Set(LIBRARY_NAME ATEventDisplay) # Change the library name and delete this comment
 Set(DEPENDENCIES
     Base
-    #MCStack
+    MCStack
     EventDisplay
 # ROOT Eve package
     Eve
@@ -52,7 +51,6 @@ Set(DEPENDENCIES
 # Basically those are the libraries in the header files' directory.
     ATTPCReco
     AtTpcMap
-    FairLogger::FairLogger
 )
 
 GENERATE_LIBRARY()

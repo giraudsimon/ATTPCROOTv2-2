@@ -37,13 +37,12 @@ ATTPC_Background.cxx
 ATEulerTransformation.cxx
 ATTPCFissionGenerator.cxx
 ATTPCFissionGeneratorV2.cxx
-ATTPCXSReader.cxx
 )
 
 set(LINKDEF  GenLinkDef.h)
 set(LIBRARY_NAME AtGen)
 
 #set(DEPENDENCIES  Base AtData pythia8 Pythia6)
-set(DEPENDENCIES  Base AtData FairLogger::FairLogger)
+set(DEPENDENCIES  Base AtData)
 
 GENERATE_LIBRARY()

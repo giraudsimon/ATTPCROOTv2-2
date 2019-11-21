@@ -1,6 +1,8 @@
 #ifndef ATRANSACTASK_H
 #define ATRANSACTASK_H
 
+
+
 // FAIRROOT classes
 #include "FairTask.h"
 #include "FairLogger.h"
@@ -23,9 +25,6 @@ class ATRansacTask : public FairTask {
     void SetPersistence(Bool_t value = kTRUE);
     void SetModelType(int model);
     void SetDistanceThreshold(Float_t threshold);
-    void SetFullMode(); //Mode that calculates the RANSAC method for every potential line
-    void SetMinHitsLine(Int_t nhits); //Set Mininum number of hits per line
-
 
     virtual InitStatus Init();
     virtual void SetParContainers();
@@ -39,11 +38,9 @@ class ATRansacTask : public FairTask {
 
     ATEvent *fEvent;
 
-    Bool_t kIsPersistence;
-    Bool_t kIsFullMode;
+    Bool_t fIsPersistence;
     int fRANSACModel;
     Float_t fRANSACThreshold;
-    Int_t fMinHitsLine; // Minimum number of hits
 
 
 

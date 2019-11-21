@@ -36,8 +36,6 @@ class ATHit : public TObject {
     void SetIsClustered(Bool_t value = kTRUE);
     //!< Cluster stter
     void SetClusterID(Int_t clusterID);
-    //!< Aux setter
-    void SetIsAux(bool value);
 
     void SetQHit(Double_t Qhit);
     void SetHitMult(Int_t HitMult);
@@ -48,30 +46,28 @@ class ATHit : public TObject {
     void SetSlopeCnt(Int_t cnt);
 
     //!< Track ID getter
-    Int_t GetTrackID() const;
+    Int_t GetTrackID();
     //!< Hit ID getter
     Int_t GetHitID() const;
     //!< Position getter
-    TVector3 GetPosition() const;
+    TVector3 GetPosition();
     //!< Position sigma getter
-    TVector3 GetPositionCorr() const;
-    TVector3 GetPosSigma() const;
+    TVector3 GetPositionCorr();
+    TVector3 GetPosSigma();
     //!< Charge getter
-    Double_t GetCharge() const;
+    Double_t GetCharge();
     //!< Clustered flag getter
-    Bool_t IsClustered() const;
+    Bool_t IsClustered();
     //!< Cluster ID getter
-    Int_t GetClusterID() const;
-    Int_t GetHitPadNum() const;
-    Double_t GetQHit() const;
-    Int_t GetHitMult() const;
-    Int_t GetTimeStamp() const;
-    Double_t GetTimeStampCorr() const;
-    Double_t GetTimeStampCorrInter() const;
-    Double_t GetBaseCorr() const;
-    Int_t    GetSlopeCnt() const;
-
-    bool IsAux() const;
+    Int_t GetClusterID();
+    Int_t GetHitPadNum();
+    Double_t GetQHit();
+    Int_t GetHitMult();
+    Int_t GetTimeStamp();
+    Double_t GetTimeStampCorr();
+    Double_t GetTimeStampCorrInter();
+    Double_t GetBaseCorr();
+    Int_t    GetSlopeCnt();
 
     Int_t    fPadNum;
     Int_t    fTimeStamp; // Time Stamp of the Hit
@@ -99,8 +95,6 @@ class ATHit : public TObject {
     Int_t fClusterID;
 
     Int_t fHitMult; // Hit multiplicity in the pad where the hit was found
-
-    bool kIsAux;
 
 
   ClassDef(ATHit, 3);

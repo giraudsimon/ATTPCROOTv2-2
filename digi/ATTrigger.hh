@@ -42,7 +42,7 @@ class ATTrigger : public TObject {
     protected:
       Bool_t fValidPad;
 
-      Double_t* fRawAdc;
+      Int_t* fRawAdc;
       Int_t fPadNum;
 
       Double_t fMultiplicity_threshold;

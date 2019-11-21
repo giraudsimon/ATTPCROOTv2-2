@@ -3,10 +3,10 @@ void eventDisplay_d2He()
   //-----User Settings:-----------------------------------------------
   //TString  InputFile     ="/mnt/simulations/attpcroot/data/attpcsim_d2He_12C_1atm.root";
   //TString  ParFile       ="/mnt/simulations/attpcroot/data/attpcpar_d2He_12C_1atm.root";
-  TString  OutFile	 ="./data/attpctest.root";
+  TString  OutFile	 ="/mnt/simulations/attpcroot/data/attpctest.root";
 
-  TString  InputFile     ="./d2He/attpcsim_d2He_14O_07atm.root";
-  TString  ParFile       ="./d2He/attpcpar_d2He_14O_07atm.root";
+  TString  InputFile     ="/mnt/simulations/attpcroot/data/attpcsim_d2He_Bg12C_1atm.root";
+  TString  ParFile       ="/mnt/simulations/attpcroot/data/attpcpar_d2He_Bg12C_1atm.root";
 
 
   // -----   Reconstruction run   -------------------------------------------
